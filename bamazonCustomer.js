@@ -1,10 +1,88 @@
 /*
-Then create a Node application called bamazonCustomer.js. Running this application will first display all of the items available for sale. Include the ids, names, and prices of products for sale.
+Then create a Node application called bamazonCustomer.js.
+*/
 
+var inquirer = require("inquirer");
+var mysql = require("mysql");
+
+var connection = mysql.createConnection({
+    host: "localhost",
+    port: 8889,
+    user: "root",
+    password: "root",
+    database: "bamazon"
+})
+
+connection.connect(function(err) {
+    if (err) throw err;
+    displayInventory();
+});
+
+//connection.end();
+/*
+Running this application will first display all of the items available for sale. Include the ids, names, and prices of products for sale.
+
+	item_id INTEGER NOT NULL,
+    product_name VARCHAR(100) NULL,
+    department_name VARCHAR(100) NULL,
+    price DECIMAL(10,2) NULL,
+    stock_quantity INTEGER(10),
+    PRIMARY KEY(item_id)
+*/
+
+function displayInventory() {
+    var query = "SELECT * FROM product";
+
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        res.forEach( function(result) {
+            console.log(`ID: ${result.item_id} || NAME: ${result.product_name} || PRICE: ${result.price}`);
+        });
+
+        promptBuy();
+    });
+}
+
+/*
 The app should then prompt users with two messages.
 
 The first should ask them the ID of the product they would like to buy.
 The second message should ask how many units of the product they would like to buy.
+*/
+
+function promptBuy() {
+    inquirer
+        .prompt([
+            {
+                name: "item_id",
+                type: "input",
+                message: "Enter ID for the product you like to purchase: ",
+                validate: function(value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                    }
+                    // To Do: should check whether ID entered is valid
+                    return false;
+                }
+            },
+            {
+                name: "quantity",
+                type: "input",
+                message: "Enter how many units you want to buy: ",
+                validate: function(value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+        ])
+        .then(function(answer) {
+            checkInventory(answer);
+        });
+}
+
+/*
 Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
 
 If not, the app should log a phrase like Insufficient quantity!, and then prevent the order from going through.
@@ -13,3 +91,36 @@ However, if your store does have enough of the product, you should fulfill the c
 This means updating the SQL database to reflect the remaining quantity.
 Once the update goes through, show the customer the total cost of their purchase.
 */
+
+function checkInventory(product) {
+    // console.log(product);
+    var query = "SELECT * FROM product WHERE ?";
+    connection.query(query, { item_id: product.item_id }, function(err, res) {
+        // console.log(res);
+        // Check whether we have anough in stock
+        if (product.quantity > res[0].stock_quantity) {
+            console.log(`Sorry.  We only have ${res[0].stock_quantity} in stock for ${res[0].product_name}`);
+
+            connection.end();
+        } else {
+            console.log("Processing your order");
+            product.newStockQuantity = res[0].stock_quantity - product.quantity;
+            product.orderCost = res[0].price * product.quantity;
+            processOrder(product);
+        }
+    });
+}
+
+function processOrder(product) {
+    var query = "UPDATE product SET ? WHERE ?";
+    connection.query(query,
+                    [{ stock_quantity: product.newStockQuantity }, { item_id: product.item_id }],
+                    function(err, res) {
+                        if (err) throw err;
+                        console.log(res.affectedRows);
+                        console.log(`Order Processed: Your total cost is \$${product.orderCost}`);
+
+                        connection.end();
+                    });
+
+}
