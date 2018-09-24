@@ -127,6 +127,21 @@ function addInventory() {
     .then(function(answer) {
         var query = "UPDATE product SET ? WHERE ?";
         //connection.query(query, {})
+
+        /*
+        HOW to do update and select within a query at the same time.
+        https://stackoverflow.com/questions/25266878/update-row-with-select-on-same-table?rq=1
+        UPDATE product JOIN
+			(SELECT item_id, stock_quantity
+                  FROM product p
+				 WHERE item_id = <item_id>
+            ) current_product
+            ON product.item_id = current_product.item_id
+        SET   product.stock_quantity = current_product.stock_quantity + <additioanl quantity>
+        WHERE product.item_id = <item_id>;
+        */
+
+
     });
 }
 
