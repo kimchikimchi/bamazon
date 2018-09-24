@@ -102,11 +102,20 @@ function addInventory() {
     inquirer
     .prompt([
         {
-
+            name: "item_id",
+            type: "input",
+            message: "Enter ID for the product you like to add more: ",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                // To Do: should check whether ID entered is valid
+                return false;
+            }
         }, {
             name: "quantity",
             type: "input",
-            message: "Enter how many units you want to buy: ",
+            message: "Enter how many units you want to add: ",
             validate: function(value) {
                 if (isNaN(value) === false) {
                     return true;
@@ -114,11 +123,10 @@ function addInventory() {
                 return false;
             }
         }
-
     ])
-    .then(function() {
-
-
+    .then(function(answer) {
+        var query = "UPDATE product SET ? WHERE ?";
+        //connection.query(query, {})
     });
 }
 
@@ -130,22 +138,52 @@ function addNewProduct() {
     inquirer
     .prompt([
         {
-
-        }, {
-            name: "quantity",
+            name: "item_id",
             type: "input",
-            message: "Enter how many units you want to buy: ",
+            message: "Enter ID for the product you like to create: ",
             validate: function(value) {
                 if (isNaN(value) === false) {
                     return true;
                 }
+                // To Do: should check whether ID entered is valid
+                return false;
+            }
+        }, {
+            name: "product_name",
+            type: "input",
+            message: "Enter the product name: ",
+        }, {
+            name: "department_name",
+            type: "input",
+            message: "Enter the department name: ",
+        }, {
+            name: "price",
+            type: "input",
+            message: "Enter the unit price in dollars and cents: ",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                // To Do: should check whether ID entered is valid
+                return false;
+            }
+        }, {
+            name: "stock_quantity",
+            type: "input",
+            message: "Enter the number of units: ",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                // To Do: should check whether ID entered is valid
                 return false;
             }
         }
-
     ])
-    .then(function() {
-
+    .then(function(answer) {
+        console.log(answer);
+        var query "INSERT INTO product ?";
+        connection.query(query, [{ }], )
 
     });
 }
