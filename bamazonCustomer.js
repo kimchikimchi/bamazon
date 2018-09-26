@@ -15,7 +15,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
-    displayInventory();
+    getInventory();
 });
 
 //connection.end();
@@ -30,16 +30,21 @@ Running this application will first display all of the items available for sale.
     PRIMARY KEY(item_id)
 */
 
-function displayInventory() {
+function getInventory() {
     var query = "SELECT * FROM product";
+    var listInventory = [];
 
     connection.query(query, function(err, res) {
         if (err) throw err;
         res.forEach( function(result) {
-            console.log(`ID: ${result.item_id} || NAME: ${result.product_name} || PRICE: ${result.price}`);
+            //console.log(`ID: ${result.item_id} || NAME: ${result.product_name} || PRICE: ${result.price}`);
+            listInventory.push({
+                name: `ID: ${result.item_id} || NAME: ${result.product_name} || PRICE: ${result.price}`,
+                value: result.item_id
+            })
         });
 
-        promptBuy();
+        promptBuy(listInventory);
     });
 }
 
@@ -50,20 +55,14 @@ The first should ask them the ID of the product they would like to buy.
 The second message should ask how many units of the product they would like to buy.
 */
 
-function promptBuy() {
+function promptBuy(list) {
     inquirer
         .prompt([
             {
                 name: "item_id",
-                type: "input",
-                message: "Enter ID for the product you like to purchase: ",
-                validate: function(value) {
-                    if (isNaN(value) === false) {
-                        return true;
-                    }
-                    // To Do: should check whether ID entered is valid
-                    return false;
-                }
+                type: "list",
+                message: "Select the product you like to purchase: ",
+                choices: list,
             },
             {
                 name: "quantity",
