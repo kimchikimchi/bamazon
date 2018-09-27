@@ -75,20 +75,9 @@ function listMenu() {
     If a manager selects View Products for Sale, the app should list every
      available item: the item IDs, names, prices, and quantities.
 */
-function viewProducts(qualifier) {
-    var query = "SELECT * FROM product " + qualifier;
-    //console.log(query);
-    connection.query(query, function(err, res) {
-        if (err) throw err;
-
-        console.log("Here are items for sale");
-        console.log("======================================================");
-        res.forEach( function(result) {
-            console.log(`ID: ${result.item_id} || NAME: ${result.product_name} || PRICE: ${result.price} || QUANTITY: ${result.stock_quantity}`);
-        });
-    });
-    //listMenu();
-    connection.end();
+function viewProducts() {
+    var query = "SELECT * FROM product ";
+    queryProducts(query);
 }
 
 /*
@@ -96,26 +85,74 @@ function viewProducts(qualifier) {
 */
 function viewLowInventory() {
     // Why duplicate code when you don't have to?
-    viewProducts("WHERE stock_quantity < 5")
+    queryProducts("SELECT * FROM product WHERE stock_quantity < 5");
 }
+
+function queryProducts(query, isListSelectable) {
+    var listInventory = [];
+
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+
+        //console.log("Here are items for sale");
+        //console.log("======================================================");
+        res.forEach( function(result) {
+            //console.log(`ID: ${result.item_id} || NAME: ${result.product_name} || PRICE: ${result.price} || QUANTITY: ${result.stock_quantity}`);
+            listInventory.push({
+                item_id: result.item_id,
+                product_name: result.product_name,
+                price: result.price,
+                stock_quantity: result.stock_quantity
+            });
+        });
+
+        if (isListSelectable) {
+            addNewProductDetail(listInventory);
+        } else {
+            printProducts(listInventory);
+        }
+    });
+}
+
+function printProducts(list) {
+    console.log("Here are items for sale");
+    console.log("======================================================");
+    list.forEach( function(product) {
+        console.log(`ID: ${product.item_id} || NAME: ${product.product_name} || PRICE: ${product.price} || QUANTITY: ${product.stock_quantity}`);
+    });
+
+    listMenu();
+    //connection.end();
+}
+
 
 /*
 If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
 */
+
 function addInventory() {
+    var query = "SELECT * FROM product ";
+    // Set the second param to true to trigger list that can be selected
+    queryProducts(query, true);
+}
+
+function addNewProductDetail(list) {
+    var choices = [];
+
+    list.forEach( function (product) {
+        choices.push({
+            name: `ID: ${product.item_id} || NAME: ${product.product_name} || PRICE: ${product.price} || QUANTITY: ${product.stock_quantity}`,
+            value: product.item_id
+        })
+    });
+
     inquirer
     .prompt([
         {
             name: "item_id",
-            type: "input",
-            message: "Enter ID for the product you like to add more: ",
-            validate: function(value) {
-                if (isNaN(value) === false) {
-                    return true;
-                }
-                // To Do: should check whether ID entered is valid
-                return false;
-            }
+            type: "list",
+            message: "Select the product you like to add more: ",
+            choices: choices
         }, {
             name: "quantity",
             type: "input",
@@ -154,10 +191,11 @@ function addInventory() {
                             if (err) throw err;
                             console.log(`Inventory has been added to Item # ${answer.item_id}`);
                         });
+        listMenu();
+        //connection.end();
     });
 
-    //listMenu();
-    connection.end();
+
 }
 
 
@@ -227,8 +265,7 @@ function addNewProduct() {
 
                 console.log(`New product has been added for item_id: ${answer.item_id}`);
             });
+        listMenu();
+        //connection.end();
     });
-
-    //listMenu();
-    connection.end();
 }
