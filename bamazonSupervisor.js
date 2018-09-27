@@ -77,6 +77,39 @@ function viewSalesByDept() {
 }
 
 function createNewDept() {
+    inquirer
+    .prompt([
+        {
+            name: "department_name",
+            type: "input",
+            message: "Enter the department name: ",
+        }, {
+            name: "over_head_costs",
+            type: "input",
+            message: "Enter the over head costs in dollars and cents: ",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                // To Do: should check whether ID entered is valid
+                return false;
+            }
+        }
+    ])
+    .then(function(answer) {
+        //console.log(answer);
+        var query = "INSERT INTO department SET ?";
+        connection.query(
+            query,
+            {
+                department_name: answer.department_name,
+                over_head_costs: answer.over_head_costs,
+            },
+            function(err, res) {
+                if (err) throw err;
 
-    
+                console.log(`New department has been added`);
+            });
+        connection.end();
+    });
 }

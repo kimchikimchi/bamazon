@@ -14,8 +14,8 @@ CREATE TABLE product (
 );
 
 CREATE TABLE department (
-	department_id INT NOT NULL,
-    deparment_name VARCHAR(100) NULL,
-    over_head_costs INTEGER(10) DEFAULT 0 NULL,
+	department_id INT NOT NULL AUTO_INCREMENT,
+    department_name VARCHAR(100) NULL,
+    over_head_costs DECIMAL(20,2) DEFAULT 0 NULL,
     PRIMARY KEY(department_id)
 );
