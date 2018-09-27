@@ -53,9 +53,16 @@ The app should then prompt users with two messages.
 
 The first should ask them the ID of the product they would like to buy.
 The second message should ask how many units of the product they would like to buy.
+
+Modify the products table so that there's a product_sales column and modify the bamazonCustomer.js app so that this value is updated with each individual products total revenue from each sale.
+
+Modify your bamazonCustomer.js app so that when a customer purchases anything from the store, the price of the product multiplied by the quantity purchased is added to the product's product_sales column.
+
 */
 
 function promptBuy(list) {
+    console.log(list);
+
     inquirer
         .prompt([
             {

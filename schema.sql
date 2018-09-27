@@ -8,6 +8,14 @@ CREATE TABLE product (
     product_name VARCHAR(100) NULL,
     department_name VARCHAR(100) NULL,
     price DECIMAL(10,2) NULL,
-    stock_quantity INTEGER(10),
+    stock_quantity INTEGER(10) NOT NULL,
+	product_sales DECIMAL(20,2) NULL,
     PRIMARY KEY(item_id)
+);
+
+CREATE TABLE department (
+	department_id INT NOT NULL,
+    deparment_name VARCHAR(100) NULL,
+    over_head_costs INTEGER(10) NULL,
+    PRIMARY KEY(department_id)
 );
