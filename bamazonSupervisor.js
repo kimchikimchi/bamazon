@@ -64,20 +64,12 @@ department_id	department_name	over_head_costs	product_sales	total_profit
 02	Clothing	60000	100000	40000
 
 The total_profit column should be calculated on the fly using the difference between over_head_costs and product_sales. total_profit should not be stored in any database. You should use a custom alias.
-
-If you can't get the table to display properly after a few hours, then feel free to go back and just add total_profit to the departments table.
-
-
-Hint: You may need to look into aliases in MySQL.
-Hint: You may need to look into GROUP BYs.
-Hint: You may need to look into JOINS.
-HINT: There may be an NPM package that can log the table to the console. What's is it? Good question :)
 */
 function viewSalesByDept() {
     // It's generally faster to do calculation within DB, if possible.
     var query = "SELECT department_id, d.department_name, over_head_costs, SUM(p.product_sales) AS department_sales, (SUM(p.product_sales) - over_head_costs) AS total_profit  " +
                 "FROM department d " +
-                "INNER JOIN product p ON LOWER(d.department_name) = LOWER(p.department_name) " +
+                "LEFT JOIN product p ON LOWER(d.department_name) = LOWER(p.department_name) " +
                 "GROUP BY department_id, d.department_name, over_head_costs ";
 
     var data = [
@@ -99,7 +91,8 @@ function viewSalesByDept() {
         });
 
         console.log(table(data));
-        connection.end();
+        //connection.end();
+        listMenu();
     });
 
 }
@@ -137,7 +130,9 @@ function createNewDept() {
                 if (err) throw err;
 
                 console.log(`New department has been added`);
+                //connection.end();
+                listMenu();
             });
-        connection.end();
+
     });
 }

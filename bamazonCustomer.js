@@ -15,6 +15,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
+    // First Display inventory when launched
     getInventory();
 });
 
@@ -56,7 +57,7 @@ The second message should ask how many units of the product they would like to b
 */
 
 function promptBuy(list) {
-    console.log(list);
+    //console.log(list);
 
     inquirer
         .prompt([
@@ -75,7 +76,8 @@ function promptBuy(list) {
                         return true;
                     }
                     return false;
-                }
+                },
+                filter: Number
             }
         ])
         .then(function(answer) {
@@ -96,27 +98,33 @@ When a customer purchases anything from the store, the price of the product mult
 
 */
 
-function checkInventory(product) {
-    // console.log(product);
+function checkInventory(order) {
     var query = "SELECT * FROM product WHERE ?";
-    connection.query(query, { item_id: product.item_id }, function(err, res) {
+    connection.query(query, { item_id: order.item_id }, function(err, res) {
+        console.log(res);
+        if (err) throw err;
         // console.log(res);
         // Check whether we have anough in stock
-        if (product.quantity > res[0].stock_quantity) {
+        if (order.quantity > res[0].stock_quantity) {
             console.log(`Sorry.  We only have ${res[0].stock_quantity} in stock for ${res[0].product_name}`);
 
-            connection.end();
+            //connection.end();
+            getInventory();
         } else {
             console.log("Processing your order");
-            product.newStockQuantity = res[0].stock_quantity - product.quantity;
-            product.orderCost = res[0].price * product.quantity;
-            product.product_sales += product.orderCost;
-            processOrder(product);
+            order.newStockQuantity = res[0].stock_quantity - order.quantity;
+            order.orderCost = res[0].price * order.quantity;
+            order.product_sales = res[0].product_sales + order.orderCost;
+            updateProduct(order);
         }
     });
 }
 
-function processOrder(product) {
+// Update the inventory information after sales
+
+function updateProduct(product) {
+    console.log(product);
+    console.log("running query");
     var query = "UPDATE product SET ? WHERE ?";
     connection.query(query,
                     [{
@@ -128,9 +136,10 @@ function processOrder(product) {
                     }],
                     function(err, res) {
                         if (err) throw err;
-                        console.log(res.affectedRows);
+                        //console.log(res.affectedRows);
                         console.log(`Order Processed: Your total cost is \$${product.orderCost}`);
 
-                        connection.end();
+                        //connection.end();
+                        getInventory();
                     });
 }

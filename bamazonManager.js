@@ -88,6 +88,23 @@ function viewLowInventory() {
     queryProducts("SELECT * FROM product WHERE stock_quantity < 5");
 }
 
+
+/*
+If a manager selects Add to Inventory, your app should display a prompt that
+will let the manager "add more" of any item currently in the store.
+*/
+function addInventory() {
+    var query = "SELECT * FROM product ";
+    var addingInventory = true;
+    // Set the second param to true to trigger list that can be selected
+    queryProducts(query, addingInventory);
+}
+
+/*
+    Helper function for both checking inventory and displaying items to add more units to.
+    Second arg determins it's just to display the info to console *OR*
+    turn it into a seletible menu item.
+*/
 function queryProducts(query, isListSelectable) {
     var listInventory = [];
 
@@ -107,7 +124,7 @@ function queryProducts(query, isListSelectable) {
         });
 
         if (isListSelectable) {
-            addNewProductDetail(listInventory);
+            addProductDetail(listInventory);
         } else {
             printProducts(listInventory);
         }
@@ -125,18 +142,11 @@ function printProducts(list) {
     //connection.end();
 }
 
-
 /*
-If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
+    Handles logic to replenish existing sale items in stock
 */
 
-function addInventory() {
-    var query = "SELECT * FROM product ";
-    // Set the second param to true to trigger list that can be selected
-    queryProducts(query, true);
-}
-
-function addNewProductDetail(list) {
+function addProductDetail(list) {
     var choices = [];
 
     list.forEach( function (product) {
@@ -169,14 +179,6 @@ function addNewProductDetail(list) {
         /*
         HOW to do update and select within a query at the same time.
         https://stackoverflow.com/questions/25266878/update-row-with-select-on-same-table?rq=1
-        UPDATE product JOIN
-			(SELECT item_id, stock_quantity
-                  FROM product p
-				 WHERE item_id = <item_id>
-            ) current_product
-            ON product.item_id = current_product.item_id
-        SET   product.stock_quantity = current_product.stock_quantity + <additioanl quantity>
-        WHERE product.item_id = <item_id>;
         */
         var query = "UPDATE product JOIN " +
                     "   (SELECT item_id, stock_quantity FROM product p WHERE ?) " +
@@ -191,6 +193,7 @@ function addNewProductDetail(list) {
                             if (err) throw err;
                             console.log(`Inventory has been added to Item # ${answer.item_id}`);
                         });
+        console.log(`Added ${answer.quantity} more item(s) for Item ID ${answer.item_id}`);
         listMenu();
         //connection.end();
     });
@@ -264,8 +267,8 @@ function addNewProduct() {
                 if (err) throw err;
 
                 console.log(`New product has been added for item_id: ${answer.item_id}`);
+                listMenu();
+                //connection.end();
             });
-        listMenu();
-        //connection.end();
     });
 }
