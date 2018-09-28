@@ -4,6 +4,7 @@ Create another Node app called bamazonSupervisor.js.
 
 var inquirer = require("inquirer");
 var mysql = require("mysql");
+const {table} = require("table");  // https://www.npmjs.com/package/table
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -73,6 +74,26 @@ Hint: You may need to look into JOINS.
 HINT: There may be an NPM package that can log the table to the console. What's is it? Good question :)
 */
 function viewSalesByDept() {
+    var query = "SELECT * FROM department";
+    var data = [
+        ['department_id', 'department_name', 'over_head_costs', 'product_sales', 'total_profit']
+    ];
+
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+
+        res.forEach(function(result) {
+            data.push([
+                result.department_id,
+                result.department_name,
+                result.over_head_costs,
+                result.product_sales,
+                result.total_profit
+            ])
+        });
+
+        console.log(table(data));
+    });
 
 }
 
