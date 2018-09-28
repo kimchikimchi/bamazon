@@ -121,7 +121,7 @@ function processOrder(product) {
     connection.query(query,
                     [{
                         stock_quantity: product.newStockQuantity,
-                        product_sales product.product_sales,
+                        product_sales: product.product_sales,
                     },
                     {
                          item_id: product.item_id

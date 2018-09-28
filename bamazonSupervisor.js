@@ -74,25 +74,32 @@ Hint: You may need to look into JOINS.
 HINT: There may be an NPM package that can log the table to the console. What's is it? Good question :)
 */
 function viewSalesByDept() {
-    var query = "SELECT * FROM department";
+    // It's generally faster to do calculation within DB, if possible.
+    var query = "SELECT department_id, d.department_name, over_head_costs, SUM(p.product_sales) AS department_sales, (SUM(p.product_sales) - over_head_costs) AS total_profit  " +
+                "FROM department d " +
+                "INNER JOIN product p ON LOWER(d.department_name) = LOWER(p.department_name) " +
+                "GROUP BY department_id, d.department_name, over_head_costs ";
+
     var data = [
-        ['department_id', 'department_name', 'over_head_costs', 'product_sales', 'total_profit']
+        ['department_id', 'department_name', 'over_head_costs', 'department_sales', 'total_profit']
     ];
 
     connection.query(query, function(err, res) {
         if (err) throw err;
 
         res.forEach(function(result) {
+
             data.push([
                 result.department_id,
                 result.department_name,
                 result.over_head_costs,
-                result.product_sales,
+                result.department_sales,
                 result.total_profit
             ])
         });
 
         console.log(table(data));
+        connection.end();
     });
 
 }
