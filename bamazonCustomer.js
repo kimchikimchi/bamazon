@@ -101,7 +101,7 @@ When a customer purchases anything from the store, the price of the product mult
 function checkInventory(order) {
     var query = "SELECT * FROM product WHERE ?";
     connection.query(query, { item_id: order.item_id }, function(err, res) {
-        console.log(res);
+        //console.log(res);
         if (err) throw err;
         // console.log(res);
         // Check whether we have anough in stock
