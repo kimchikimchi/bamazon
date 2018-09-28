@@ -123,8 +123,6 @@ function checkInventory(order) {
 // Update the inventory information after sales
 
 function updateProduct(product) {
-    console.log(product);
-    console.log("running query");
     var query = "UPDATE product SET ? WHERE ?";
     connection.query(query,
                     [{
